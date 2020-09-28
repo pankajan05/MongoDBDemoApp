@@ -9,7 +9,18 @@ namespace MongoDBDemo
         static void Main(string[] args)
         {
             MongoCRUD db = new MongoCRUD("AddressBook");
-            db.InsertRecord("Users", new User { Username = "pankajan", Password = "kajan" });
+            User user = new User {
+                Username = "sabinaya",
+                Password = "kajan1997",
+                UserDetail = new UserDetail{
+                    FirstName = "Pankajan",
+                    LastName = "Sabinaya",
+                    Address = "Earlalai East, Earlalai, Jaffna.",
+                    phoneNo = "0774961705",
+                    Nic = "199713800586v"
+                }
+            };
+            db.InsertRecord("Users", user);
         }
     }
 
@@ -19,6 +30,16 @@ namespace MongoDBDemo
         public Guid Id { get; set; }
         public string Username { get; set; }
         public string Password { get; set; }
+        public UserDetail UserDetail { get; set; }
+    }
+
+    public class UserDetail
+    {
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string Address { get; set; }
+        public string phoneNo { get; set; }
+        public string Nic { get; set; }
     }
 
     public class MongoCRUD
