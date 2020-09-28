@@ -1,6 +1,8 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using System;
+using System.Collections.Generic;
 
 namespace MongoDBDemo
 {
@@ -9,18 +11,27 @@ namespace MongoDBDemo
         static void Main(string[] args)
         {
             MongoCRUD db = new MongoCRUD("AddressBook");
-            User user = new User {
-                Username = "sabinaya",
-                Password = "kajan1997",
-                UserDetail = new UserDetail{
-                    FirstName = "Pankajan",
-                    LastName = "Sabinaya",
-                    Address = "Earlalai East, Earlalai, Jaffna.",
-                    phoneNo = "0774961705",
-                    Nic = "199713800586v"
-                }
-            };
-            db.InsertRecord("Users", user);
+            //User user = new User {
+            //    Username = "sabinaya",
+            //    Password = "kajan1997",
+            //    UserDetail = new UserDetail{
+            //        FirstName = "Pankajan",
+            //        LastName = "Sabinaya",
+            //        Address = "Earlalai East, Earlalai, Jaffna.",
+            //        phoneNo = "0774961705",
+            //        Nic = "199713800586v"
+            //    }
+            //};
+            //db.InsertRecord("Users", user);
+
+            var records = db.LoadRecords<User>("Users");
+
+            foreach(var rec in records)
+            {
+                Console.WriteLine($"{rec.Id}: {rec.UserDetail.FirstName} {rec.UserDetail.LastName}");
+            }
+
+
         }
     }
 
@@ -58,6 +69,12 @@ namespace MongoDBDemo
         {
             var collection = db.GetCollection<T>(table);
             collection.InsertOne(record);
+        }
+
+        public List<T> LoadRecords<T>(string table)
+        {
+            var collection = db.GetCollection<T>(table);
+            return collection.Find(new BsonDocument()).ToList();
         }
 
         
