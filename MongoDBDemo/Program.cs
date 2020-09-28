@@ -24,13 +24,18 @@ namespace MongoDBDemo
             //};
             //db.InsertRecord("Users", user);
 
-            var records = db.LoadRecords<User>("Users");
+            //var records = db.LoadRecords<User>("Users");
 
-            foreach(var rec in records)
-            {
-                Console.WriteLine($"{rec.Id}: {rec.UserDetail.FirstName} {rec.UserDetail.LastName}");
-            }
+            //foreach (var rec in records)
+            //{
+            //    Console.WriteLine($"{rec.Id}: {rec.UserDetail.FirstName} {rec.UserDetail.LastName}");
+            //}
 
+            var oneRec = db.LoadRecordById<User>("Users", new Guid("3501d41e-ec51-4e9d-9c93-055daec4b5d4"));
+            //oneRec.UserDetail.DateOfBirth = new DateTime(1997, 05, 10, 0, 0, 0, DateTimeKind.Utc);
+            //db.UpdateRecord<User>("Users", oneRec.Id, oneRec);
+
+            db.DeleteRecord<User>("Users", oneRec.Id);
 
         }
     }
@@ -51,6 +56,8 @@ namespace MongoDBDemo
         public string Address { get; set; }
         public string phoneNo { get; set; }
         public string Nic { get; set; }
+        [BsonElement("dob")]
+        public DateTime DateOfBirth { get; set; }
     }
 
     public class MongoCRUD
@@ -77,7 +84,29 @@ namespace MongoDBDemo
             return collection.Find(new BsonDocument()).ToList();
         }
 
-        
+        public T LoadRecordById<T>(string table, Guid id)
+        {
+            var collection = db.GetCollection<T>(table);
+            var filter = Builders<T>.Filter.Eq("Id", id);
+
+            return collection.Find(filter).First();
+        }
+
+        public void UpdateRecord<T>(string table, Guid id, T record)
+        {
+            var collection = db.GetCollection<T>(table);
+            var result = collection.ReplaceOne( 
+                new BsonDocument("_id", id),
+                record,
+                new UpdateOptions { IsUpsert = true });
+        }
+
+        public void DeleteRecord<T>(string table, Guid id)
+        {
+            var collection = db.GetCollection<T>(table);
+            var filter = Builders<T>.Filter.Eq("Id", id);
+            collection.DeleteOne(filter);
+        }
 
     }
 }
