@@ -1,8 +1,4 @@
-﻿using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Driver;
-using System;
-using System.Collections.Generic;
+﻿using System;
 
 namespace MongoDBDemo
 {
@@ -38,75 +34,5 @@ namespace MongoDBDemo
             db.DeleteRecord<User>("Users", oneRec.Id);
 
         }
-    }
-
-    public class User
-    {
-        [BsonId]
-        public Guid Id { get; set; }
-        public string Username { get; set; }
-        public string Password { get; set; }
-        public UserDetail UserDetail { get; set; }
-    }
-
-    public class UserDetail
-    {
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string Address { get; set; }
-        public string phoneNo { get; set; }
-        public string Nic { get; set; }
-        [BsonElement("dob")]
-        public DateTime DateOfBirth { get; set; }
-    }
-
-    public class MongoCRUD
-    {
-        private IMongoDatabase db;
-
-        public MongoCRUD(string database)
-        {
-            var client = new MongoClient();
-            db = client.GetDatabase(database);
-            Console.WriteLine("Connected Successfully!");
-
-        }
-
-        public void InsertRecord<T>(string table, T record)
-        {
-            var collection = db.GetCollection<T>(table);
-            collection.InsertOne(record);
-        }
-
-        public List<T> LoadRecords<T>(string table)
-        {
-            var collection = db.GetCollection<T>(table);
-            return collection.Find(new BsonDocument()).ToList();
-        }
-
-        public T LoadRecordById<T>(string table, Guid id)
-        {
-            var collection = db.GetCollection<T>(table);
-            var filter = Builders<T>.Filter.Eq("Id", id);
-
-            return collection.Find(filter).First();
-        }
-
-        public void UpdateRecord<T>(string table, Guid id, T record)
-        {
-            var collection = db.GetCollection<T>(table);
-            var result = collection.ReplaceOne( 
-                new BsonDocument("_id", id),
-                record,
-                new UpdateOptions { IsUpsert = true });
-        }
-
-        public void DeleteRecord<T>(string table, Guid id)
-        {
-            var collection = db.GetCollection<T>(table);
-            var filter = Builders<T>.Filter.Eq("Id", id);
-            collection.DeleteOne(filter);
-        }
-
     }
 }
